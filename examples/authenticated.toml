@@ -1,0 +1,12 @@
+# 带认证的 Redis 配置示例
+# 适用于需要用户名和密码认证的 Redis 实例
+
+[redis]
+host = "redis.example.com"
+port = 6379
+user = "app_user"
+password = "secure_password"
+ssl = false
+
+[proxy]
+listen = "0.0.0.0:6380"

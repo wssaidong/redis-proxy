@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis-server
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass mypassword
+    networks:
+      - redis-network
+
+  redis-proxy:
+    image: your-username/redis-proxy:latest
+    container_name: redis-proxy
+    ports:
+      - "6380:6380"
+    depends_on:
+      - redis
+    command: >
+      --redis-host redis
+      --redis-port 6379
+      --redis-password mypassword
+      --listen 0.0.0.0:6380
+    networks:
+      - redis-network
+    restart: unless-stopped
+
+networks:
+  redis-network:
+    driver: bridge

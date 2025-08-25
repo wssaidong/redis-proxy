@@ -1,0 +1,12 @@
+# SSL 连接配置示例
+# 适用于启用了 SSL/TLS 的 Redis 实例
+
+[redis]
+host = "secure-redis.example.com"
+port = 6380
+user = "secure_user"
+password = "very_secure_password"
+ssl = true
+
+[proxy]
+listen = "0.0.0.0:6380"

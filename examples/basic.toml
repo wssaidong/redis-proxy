@@ -1,0 +1,12 @@
+# 基本配置示例
+# 这是最简单的配置，代理本地 Redis 实例
+
+[redis]
+host = "127.0.0.1"
+port = 6379
+user = ""
+password = ""
+ssl = false
+
+[proxy]
+listen = "0.0.0.0:6380"

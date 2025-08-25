@@ -1,0 +1,50 @@
+[package]
+name = "redis-proxy"
+version = "0.1.0"
+edition = "2021"
+authors = ["Redis Proxy Contributors"]
+description = "A high-performance Redis proxy written in Rust with transparent forwarding and authentication support"
+documentation = "https://docs.rs/redis-proxy"
+homepage = "https://github.com/your-username/redis-proxy"
+repository = "https://github.com/your-username/redis-proxy"
+readme = "README.md"
+license = "MIT"
+keywords = ["redis", "proxy", "database", "networking", "async"]
+categories = ["database", "network-programming", "command-line-utilities"]
+exclude = [
+    ".github/",
+    "docs/",
+    "examples/",
+    "*.md",
+    "Dockerfile*",
+]
+
+[[bin]]
+name = "redis-proxy"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
+clap = { version = "4.0", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+anyhow = "1.0"
+thiserror = "1.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.dev]
+opt-level = 0
+debug = true
+overflow-checks = true
+
+[profile.test]
+opt-level = 1
+debug = true
