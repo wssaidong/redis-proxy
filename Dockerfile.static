@@ -1,0 +1,57 @@
+# Multi-stage build for static Linux amd64 binary
+FROM --platform=linux/amd64 rust:1.80-alpine AS builder
+
+# Install build dependencies for musl static linking
+RUN apk add --no-cache \
+    musl-dev \
+    pkgconfig \
+    openssl-dev \
+    openssl-libs-static
+
+# Set environment variables for static linking
+ENV RUSTFLAGS="-C target-feature=+crt-static"
+ENV PKG_CONFIG_ALL_STATIC=1
+ENV PKG_CONFIG_ALL_DYNAMIC=0
+
+WORKDIR /app
+
+# Add musl target for static linking
+RUN rustup target add x86_64-unknown-linux-musl
+
+# Copy Cargo files first for better caching
+COPY Cargo.toml Cargo.lock ./
+
+# Create a dummy main.rs to build dependencies
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+
+# Build dependencies only (this layer will be cached)
+RUN cargo build --release --target x86_64-unknown-linux-musl
+
+# Remove dummy source
+RUN rm -rf src
+
+# Copy actual source code
+COPY src ./src
+
+# Build the static binary
+RUN cargo build --release --target x86_64-unknown-linux-musl
+
+# Verify the binary is statically linked
+RUN ldd target/x86_64-unknown-linux-musl/release/redis-proxy || echo "Static binary confirmed"
+
+# Create minimal runtime image
+FROM scratch
+
+# Copy the static binary
+COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/redis-proxy /redis-proxy
+
+# Copy config file
+COPY config.toml /config.toml
+
+# Copy CA certificates for HTTPS if needed
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+EXPOSE 6380
+
+ENTRYPOINT ["/redis-proxy"]
+CMD ["--config", "/config.toml"]

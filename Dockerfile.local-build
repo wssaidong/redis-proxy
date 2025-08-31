@@ -1,0 +1,18 @@
+# 本地构建静态二进制的 Dockerfile
+# 先在本地构建，然后复制到最小镜像
+
+FROM scratch
+
+# 复制静态二进制文件
+COPY target/x86_64-unknown-linux-musl/release/redis-proxy /redis-proxy
+
+# 复制配置文件
+COPY config.toml /config.toml
+
+# 复制 CA 证书（如果需要 HTTPS）
+COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+EXPOSE 6380
+
+ENTRYPOINT ["/redis-proxy"]
+CMD ["--config", "/config.toml"]
