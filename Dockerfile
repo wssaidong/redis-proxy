@@ -42,7 +42,7 @@ RUN chown -R redis-proxy:redis-proxy /app
 
 USER redis-proxy
 
-EXPOSE 6380
+EXPOSE 6379
 
 ENTRYPOINT ["/app/redis-proxy"]
 CMD ["--config", "/app/config.toml"]
