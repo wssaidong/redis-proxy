@@ -35,7 +35,7 @@ pub struct ProxyConfig {
 impl Default for ProxyConfig {
     fn default() -> Self {
         Self {
-            listen: "0.0.0.0:6380".to_string(),
+            listen: "127.0.0.1:6379".to_string(),
         }
     }
 }

@@ -36,12 +36,19 @@ redis-proxy --config config.toml
 # 拉取镜像
 docker pull your-username/redis-proxy:latest
 
-# 运行容器
+# 运行容器 (只暴露到本地,推荐)
 docker run -d \
   --name redis-proxy \
-  -p 6380:6380 \
+  -p 127.0.0.1:6379:6379 \
   -v $(pwd)/config.toml:/app/config.toml \
   your-username/redis-proxy:latest
+
+# 或者暴露到所有接口 (需要配合防火墙使用)
+# docker run -d \
+#   --name redis-proxy \
+#   -p 6379:6379 \
+#   -v $(pwd)/config.toml:/app/config.toml \
+#   your-username/redis-proxy:latest
 ```
 
 ### 使用 Docker Compose
@@ -61,14 +68,17 @@ services:
   redis-proxy:
     image: your-username/redis-proxy:latest
     ports:
-      - "6380:6380"
+      # 只暴露到本地 (推荐)
+      - "127.0.0.1:6379:6379"
+      # 或暴露到所有接口 (需要配合防火墙)
+      # - "6379:6379"
     depends_on:
       - redis
     command: >
       --redis-host redis
       --redis-port 6379
       --redis-password mypassword
-      --listen 0.0.0.0:6380
+      --listen 0.0.0.0:6379
 ```
 
 启动服务：
@@ -104,14 +114,14 @@ spec:
       - name: redis-proxy
         image: your-username/redis-proxy:latest
         ports:
-        - containerPort: 6380
+        - containerPort: 6379
         args:
         - "--redis-host"
         - "redis-service"
         - "--redis-port"
         - "6379"
         - "--listen"
-        - "0.0.0.0:6380"
+        - "0.0.0.0:6379"
         resources:
           requests:
             memory: "64Mi"
@@ -129,8 +139,8 @@ spec:
     app: redis-proxy
   ports:
   - protocol: TCP
-    port: 6380
-    targetPort: 6380
+    port: 6379
+    targetPort: 6379
   type: LoadBalancer
 ```
 
@@ -159,7 +169,7 @@ data:
     ssl = false
 
     [proxy]
-    listen = "0.0.0.0:6380"
+    listen = "0.0.0.0:6379"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -179,7 +189,7 @@ spec:
       - name: redis-proxy
         image: your-username/redis-proxy:latest
         ports:
-        - containerPort: 6380
+        - containerPort: 6379
         args:
         - "--config"
         - "/app/config.toml"
@@ -250,7 +260,7 @@ sudo systemctl status redis-proxy
 
 ```nginx
 upstream redis_proxy {
-    server 127.0.0.1:6380;
+    server 127.0.0.1:6379;
     server 127.0.0.1:6381;
     server 127.0.0.1:6382;
 }
@@ -283,7 +293,7 @@ frontend redis_frontend
 
 backend redis_proxy_backend
     balance roundrobin
-    server proxy1 127.0.0.1:6380 check
+    server proxy1 127.0.0.1:6379 check
     server proxy2 127.0.0.1:6381 check
     server proxy3 127.0.0.1:6382 check
 ```
@@ -308,7 +318,7 @@ redis-proxy --config config.toml
 # health-check.sh
 
 PROXY_HOST="127.0.0.1"
-PROXY_PORT="6380"
+PROXY_PORT="6379"
 
 if timeout 5 bash -c "</dev/tcp/$PROXY_HOST/$PROXY_PORT"; then
     echo "Redis Proxy is healthy"

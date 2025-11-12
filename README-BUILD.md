@@ -183,10 +183,10 @@ cargo build --release --target x86_64-unknown-linux-musl
 ### 基本运行
 ```bash
 # 使用 Docker 运行
-docker run -p 6380:6380 redis-proxy:static-local
+docker run -p 6379:6379 redis-proxy:static-local
 
 # 使用配置文件
-docker run -p 6380:6380 -v $(pwd)/config.toml:/config.toml redis-proxy:static-local
+docker run -p 6379:6379 -v $(pwd)/config.toml:/config.toml redis-proxy:static-local
 ```
 
 ### 生产部署

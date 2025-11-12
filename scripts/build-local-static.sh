@@ -109,7 +109,7 @@ if command -v docker &> /dev/null; then
         echo ""
         echo -e "${BLUE}使用方法:${NC}"
         echo -e "1. 直接运行: ./target/static/redis-proxy --config config.toml"
-        echo -e "2. Docker 运行: docker run -p 6380:6380 redis-proxy:static-local"
+        echo -e "2. Docker 运行: docker run -p 6379:6379 redis-proxy:static-local"
     else
         echo -e "${RED}✗ Docker 镜像构建失败${NC}"
         exit 1

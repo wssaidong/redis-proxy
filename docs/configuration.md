@@ -17,7 +17,7 @@ password = ""
 ssl = false
 
 [proxy]
-listen = "0.0.0.0:6380"
+listen = "127.0.0.1:6379"
 ```
 
 ### Redis 配置
@@ -34,7 +34,7 @@ listen = "0.0.0.0:6380"
 
 | 参数 | 类型 | 默认值 | 描述 |
 |------|------|--------|------|
-| `listen` | String | "0.0.0.0:6380" | 代理监听地址和端口 |
+| `listen` | String | "127.0.0.1:6379" | 代理监听地址和端口 |
 
 ## 命令行参数
 
@@ -60,7 +60,7 @@ redis-proxy [OPTIONS]
 
 ## 配置示例
 
-### 1. 本地 Redis
+### 1. 本地 Redis (推荐 - 最安全)
 
 ```toml
 [redis]
@@ -68,7 +68,7 @@ host = "127.0.0.1"
 port = 6379
 
 [proxy]
-listen = "0.0.0.0:6380"
+listen = "127.0.0.1:6379"
 ```
 
 ### 2. 远程 Redis 带认证
@@ -81,7 +81,7 @@ user = "myuser"
 password = "mypassword"
 
 [proxy]
-listen = "0.0.0.0:6380"
+listen = "127.0.0.1:6379"
 ```
 
 ### 3. SSL Redis
@@ -89,13 +89,13 @@ listen = "0.0.0.0:6380"
 ```toml
 [redis]
 host = "secure-redis.example.com"
-port = 6380
+port = 6379
 user = "secure_user"
 password = "secure_password"
 ssl = true
 
 [proxy]
-listen = "0.0.0.0:6380"
+listen = "127.0.0.1:6379"
 ```
 
 ## 环境变量
@@ -109,7 +109,7 @@ redis-proxy \
   --redis-port "${REDIS_PORT:-6379}" \
   --redis-user "${REDIS_USER}" \
   --redis-password "${REDIS_PASSWORD}" \
-  --listen "${PROXY_LISTEN:-0.0.0.0:6380}"
+  --listen "${PROXY_LISTEN:-127.0.0.1:6379}"
 ```
 
 ## 配置验证
@@ -118,20 +118,22 @@ redis-proxy \
 
 ```
 INFO Starting Redis Proxy
-INFO Configuration: Config { redis: RedisConfig { host: "127.0.0.1", port: 6379, user: "", password: "", ssl: false }, proxy: ProxyConfig { listen: "0.0.0.0:6380" } }
+INFO Configuration: Config { redis: RedisConfig { host: "127.0.0.1", port: 6379, user: "", password: "", ssl: false }, proxy: ProxyConfig { listen: "127.0.0.1:6379" } }
 ```
 
 ## 最佳实践
 
 1. **安全性**：
+   - 默认使用 `127.0.0.1` 监听,只允许本地连接
    - 不要在配置文件中明文存储密码
    - 使用环境变量或密钥管理系统
-   - 限制配置文件的访问权限
+   - 限制配置文件的访问权限 (`chmod 600 config.toml`)
 
 2. **网络**：
+   - 只在必要时才监听 `0.0.0.0` 或其他网络接口
    - 确保代理端口不与其他服务冲突
-   - 考虑使用非标准端口提高安全性
-   - 配置防火墙规则
+   - 配置防火墙规则限制访问来源
+   - 参考 [安全配置指南](security.md) 了解详细信息
 
 3. **监控**：
    - 监控代理服务的运行状态

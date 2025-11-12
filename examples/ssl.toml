@@ -9,4 +9,4 @@ password = "very_secure_password"
 ssl = true
 
 [proxy]
-listen = "0.0.0.0:6380"
+listen = "127.0.0.1:6379"

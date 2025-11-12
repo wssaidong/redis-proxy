@@ -14,14 +14,15 @@ services:
     image: your-username/redis-proxy:latest
     container_name: redis-proxy
     ports:
-      - "6380:6380"
+      # 只暴露到本地 127.0.0.1,提高安全性
+      - "127.0.0.1:6379:6379"
     depends_on:
       - redis
     command: >
       --redis-host redis
       --redis-port 6379
       --redis-password mypassword
-      --listen 0.0.0.0:6380
+      --listen 0.0.0.0:6379
     networks:
       - redis-network
     restart: unless-stopped
